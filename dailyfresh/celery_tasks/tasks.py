@@ -6,7 +6,7 @@ import time
 # 初始化django项目所依赖的环境
 import os
 import django
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'dailyFresh.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'dailyfresh.settings')
 django.setup()
 
 # 创建一个celery类
@@ -14,6 +14,7 @@ app = Celery('celery_tasks.tasks', broker='redis://192.168.56.137:6379/10')
 
 
 # 创建发送激活邮件的函数
+@app.task
 def send_register_active_email(to_email, username, token):
     # 发送激活文件
     subject = '天天生鲜欢迎您注册'

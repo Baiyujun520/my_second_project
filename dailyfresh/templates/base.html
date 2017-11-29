@@ -22,11 +22,11 @@
 				<div {% if user %} class="login_btn fl" {% else %} class="login_info fl"{% endif %}>
 					欢迎您：<em>{{ user.username }}</em>
                     <span>|</span>
-                    <a href="#">退出</a>
+                    <a href="{% url 'user:logout' %}">退出</a>
 				</div>
                 {% else %}
 				<div class="login_btn fl">
-					<a href="#">登录</a>
+					<a href="{% url 'user:login' %}">登录</a>
 					<span>|</span>
 					<a href="{% url 'user:register' %}">注册</a>
 				</div>

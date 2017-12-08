@@ -5,9 +5,10 @@ from django.conf import settings
 from django.views.generic import View
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from django.core.urlresolvers import reverse
+from utils.mixin import LoginRequiredMixin
 from celery_tasks.tasks import send_register_active_email
 from itsdangerous import SignatureExpired
-from user.models import User
+from user.models import User, Address
 import re
 
 # Create your views here.
@@ -114,7 +115,12 @@ class LoginView(View):
             if user.is_active:
                 # 用户已经激活
                 login(request, user)
-                response = redirect(reverse('goods:index'))
+
+                # 获取登录跳转的页面
+                next_url = request.GET.get('next', reverse('goods:index'))
+
+                # 登录成功返回首页
+                response = redirect(next_url)
 
                 # 获取是否记住用户名，若选择记住，则设置用户的cookie信息
                 remember = request.POST.get('remember')
@@ -141,4 +147,60 @@ class LogoutView(View):
         return redirect(reverse('goods:index'))
 
 
+class UserInfoView(LoginRequiredMixin, View):
+    """用户中心-用户信息"""
+    def get(self, request):
+        # 显示个人信息
+        user = request.user
 
+        return render(request, "user_center_info.html")
+
+    def post(self, request):
+
+        return render(request, "user_center_info.html")
+
+
+class AddressView(LoginRequiredMixin, View):
+    """用户中心-地址信息"""
+    def get(self, request):
+        return render(request, 'user_center_site.html')
+
+    def post(self, request):
+        """设置地址"""
+
+        # 获取请求传来的参数
+        receiver = request.POST.get('receiver')
+        addr = request.POST.get('addr')
+        zip_code = request.POST.get('zip_code')
+        phone = request.POST.get('phone')
+
+        # 验证数据的完整性
+        if not all([receiver, addr, phone]):
+            return render(request, 'user_center_site.html', {'errmsg': '数据不完整'})
+
+        # 手机号码验证
+        if not re.match(r'^1[3|4|5|7|8][0-9]{9}$', phone):
+            return render(request, 'user_center_site.html', {'errmsg', '手机号码不正确'})
+
+        # 业务处理
+        # 如果用户没有默认的收货地址， 则将添加的值设为默认值，否则不做处理
+
+        # 获取登录对象
+        user = request.user
+
+        address = Address.objects.get_default_address(user=user)
+
+        if address:
+            is_default = False
+        else:
+            is_default = True
+
+        # 将地址添加到数据库中
+        Address.objects.create(user=user,
+                               receiver=receiver,
+                               addr=addr,
+                               zip_code=zip_code,
+                               phone=phone,
+                               is_default=is_default)
+
+        return redirect(reverse('user:address'))

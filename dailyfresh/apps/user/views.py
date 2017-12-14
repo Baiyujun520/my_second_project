@@ -15,7 +15,7 @@ import re
 
 
 class RegisterView(View):
-    '''注册类视图'''
+    """注册类视图"""
     def get(self, request):
         # 进入注册页面
         return render(request, 'register.html')
@@ -87,9 +87,9 @@ class ActiveView(View):
 
 
 class LoginView(View):
-    '''登录'''
+    """登录"""
     def get(self, request):
-        '''显示登录页面'''
+        """显示登录页面"""
         if 'username' in request.COOKIES:
             username = request.COOKIES.get('username')
             checked = 'checked'
@@ -163,7 +163,13 @@ class UserInfoView(LoginRequiredMixin, View):
 class AddressView(LoginRequiredMixin, View):
     """用户中心-地址信息"""
     def get(self, request):
-        return render(request, 'user_center_site.html')
+        # 显示用户的默认地址
+        user = request.user
+        address = Address.objects.get_default_address(user=user)
+
+        # 构造上下文
+        context = {'page': 'address', 'address': address}
+        return render(request, 'user_center_site.html', context)
 
     def post(self, request):
         """设置地址"""

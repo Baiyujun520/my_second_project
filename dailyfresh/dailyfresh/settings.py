@@ -131,3 +131,18 @@ EMAIL_HOST_USER = 'baiyujun010@163.com'
 EMAIL_HOST_PASSWORD = 'baiyujun520940'
 # 收件人看到的发件人
 EMAIL_FROM = '天天生鲜<baiyujun010@163.com>'
+
+# 设置登录url地址
+LOGIN_URL = '/user/login'
+
+# 七牛云秘钥
+QINIU_ACCESS_KEY = 'V_xlJjJOVoTYzXpuY0dKH1s1SF2m5ITXzIqcxwib'
+#
+QINIU_SECRET_KEY = 'HuNmaIzEabXHBV97VO6Gcmo9ZuQLFW93_yKLxh0a'
+QINIU_BUCKET_NAME = 'dailyfresh'
+QINIU_BUCKET_DOMAIN = 'p0zgd3uy3.bkt.clouddn.com/'
+QINIU_SECURE_URL = False      # 使用http
+
+DEFAULT_FILE_STORAGE = 'qiniustorage.backends.QiniuMediaStorage'
+
+# STATIC_URL = QINIU_BUCKET_DOMAIN + '/static/'

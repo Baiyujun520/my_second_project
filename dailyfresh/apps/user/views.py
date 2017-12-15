@@ -9,6 +9,8 @@ from utils.mixin import LoginRequiredMixin
 from celery_tasks.tasks import send_register_active_email
 from itsdangerous import SignatureExpired
 from user.models import User, Address
+from goods.models import GoodsSKU
+from django_redis import get_redis_connection
 import re
 
 # Create your views here.
@@ -152,12 +154,25 @@ class UserInfoView(LoginRequiredMixin, View):
     def get(self, request):
         # 显示个人信息
         user = request.user
+        address = Address.objects.get_default_address(user=user)
+        # 获取用户浏览商品记录
+        # 首先跟redis数据库建立连接
+        # conn = get_redis_connection('default')
+        #
+        # # 获取用户的历史浏览记录
+        # list_key = 'history_%d' % user.id
+        # # 获取到redis中的五条历史记录
+        # sku_ids = conn.lrange(list_key, 0, 4)
+        # # 获取数据库中对应商品编号的商品
+        # goods_li = []
+        # for id in sku_ids:
+        #     goods = GoodsSKU.objects.get(id=id)
+        #     goods_li.append(goods)
 
-        return render(request, "user_center_info.html")
+        # 构造上下文
+        context = {'page': 'user', 'user': user, 'address': address}
 
-    def post(self, request):
-
-        return render(request, "user_center_info.html")
+        return render(request, "user_center_info.html", context=context)
 
 
 class AddressView(LoginRequiredMixin, View):
